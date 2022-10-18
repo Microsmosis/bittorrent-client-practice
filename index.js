@@ -1,5 +1,7 @@
 'use strict';
 
+// look back into practice.js for explanation comments.
+
 const fs = require('fs');
 const bencode = require('bencode');
 const tracker = require('./tracker');
