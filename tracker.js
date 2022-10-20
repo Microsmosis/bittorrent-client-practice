@@ -8,14 +8,19 @@ const urlParse = require('url').parse;
 const crypto = require('crypto'); // we will use crypto module to create a random 32-bit integer.
 const util = require('./util'); // importing function to create random id for messages.
 
+
+
+
 module.exports.getPeers = (torrent, callback) => {
+	console.log('here1');
 	const socket = dgram.createSocket('udp4');
 	
 	const url = torrent.announce.toString('utf8');
 	
 	udpSend(socket, buildConnReq(), url);
-	
+	console.log('listening socket');
 	socket.on('message', response => {
+		console.log('here2');
 		if (respType(response) === 'connect') {
 			// 2. receive and parse connect response
 			const connResp = parseConnResp(response);
@@ -31,7 +36,11 @@ module.exports.getPeers = (torrent, callback) => {
 			callback(announceResp.peers);
 		  }
 	});
+	console.log('here aleady ??')
 };
+
+
+
 
 function udpSend(socket, message, rawUrl, callback=()=>{}) { // convenience function to avoid having to set offset and length args.
 															// since we want to send the whole buffer and sets a default callback
@@ -39,14 +48,18 @@ function udpSend(socket, message, rawUrl, callback=()=>{}) { // convenience func
 															// after sending the message.
 	const url = urlParse(rawUrl);
 	socket.send(message, 0, message.length, url.port, url.host, callback);
+	console.log('here3');
 }
+
+
+
 
 function buildConnReq() { // Creates the buffer/message to be sent
 	const connBufferMessage = Buffer.alloc(16) // Allocates a new Buffer of size bytes. If fill is undefined, theBuffer will be zero-filled.
 								// we know that the message should be 16-bytes long.
 
 	// connection_id -> see notebook for more information.
-	connBufferMessage.writeUInt32BE(0x417, 0); 
+	connBufferMessage.writeUInt32BE(0x417, 0);  0x41727101980
 	connBufferMessage.writeUInt32BE(0x27101980, 4);
 		// Here we write the connection_id, which should always be 0x41727101980 when writing the connection request.
 		// We use the method writeUInt32BE which writes an unsigned 32-bit integer in big-endian format. 
@@ -63,17 +76,26 @@ function buildConnReq() { // Creates the buffer/message to be sent
 	crypto.randomBytes(4).copy(connBufferMessage, 12);
 		// For the final 4 bytes we genereate a random 4-byte buffer (creates a random 32-bit integer)
 		// To copy that buffer into our original buffer we use the copy method passing in the offset we would like to start writing at.
-		
+		console.log(connBufferMessage);
 	return connBufferMessage;
 }
 
+
+
+
+
 function parseConnResp(resp) { // function to parse the connection response message
+	console.log('here5');
 	return {
 	  action: resp.readUInt32BE(0), // passing the offset as parameter
 	  transactionId: resp.readUInt32BE(4), // passing the offset as parameter
 	  connectionId: resp.slice(8) // slice to get the last 8 bytes.
 	}
 }
+
+
+
+
 
 function buildAnnounceReq(connId, torrent, port=6881) { // function to build the announce request message buffer
 							// message is built by the example found in BEP.
@@ -93,7 +115,7 @@ function buildAnnounceReq(connId, torrent, port=6881) { // function to build the
 	crypto.randomBytes(4).copy(annBufferMessage, 12);
 	
 	// info_hash
-	torrentParser.size(torrent).copy(annBufferMessage, 16); // torrentParser to be implemented in next part of tutorial
+	torrentParser.size(torrent).copy(annBufferMessage, 16); // 20-byte SHA1 hash of the info key from the metainfo file.
 	
 	// peer_id
 	util.generateId().copy(annBufferMessage, 36); //  Normally an id is set every time the client loads 
@@ -122,10 +144,13 @@ function buildAnnounceReq(connId, torrent, port=6881) { // function to build the
 	
 	// port
 	annBufferMessage.writeUInt32BE(port, 86);
-	
+	console.log('here6');
 	return annBufferMessage;
 	
 }
+
+
+
 
 function parseAnnounceResp(resp) {
 
@@ -136,7 +161,7 @@ function parseAnnounceResp(resp) {
 		}
 		return groups;
 	}
-	
+	console.log('here7');
 	return {
 		action: resp.readUInt32BE(0), // passing the offset as parameter.
 		transactionId: resp.readUInt32BE(4), // passing the offset as parameter.
@@ -152,3 +177,10 @@ function parseAnnounceResp(resp) {
 	}
 }
 
+
+
+function respType(resp) {
+	const action = resp.readUInt32BE(0);
+	if (action === 0) return 'connect';
+	if (action === 1) return 'announce';
+}
