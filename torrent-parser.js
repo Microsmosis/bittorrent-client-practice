@@ -23,7 +23,5 @@ module.exports.size = (torrent) => {
 	const bignumb = BigInt(size)
 	test.writeBigInt64BE(bignumb, 0);
 	
-	return test; // instead of 'bignum' library we are using BigInt and it might not work.
-											// remember to be aware of this is problems occur and start debugging from this 
-										  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	return test;
 }

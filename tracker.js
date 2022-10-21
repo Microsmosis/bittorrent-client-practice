@@ -46,7 +46,6 @@ module.exports.getPeers = (torrent, callback) => {
 };
 
 
-
 function udpSend(socket, message, rawUrl, callback=()=>{}) { // convenience function to avoid having to set offset and length args.
 	// since we want to send the whole buffer and sets a default callback
 	// function which is just a empty function, since we dont need to do anything
@@ -59,11 +58,13 @@ function udpSend(socket, message, rawUrl, callback=()=>{}) { // convenience func
 	
 }
 
+
 function respType(resp) {
 	const action = resp.readUInt32BE(0);
 	if (action === 0) return 'connect';
 	if (action === 1) return 'announce';
 }
+
 
 function buildConnReq() { // Creates the buffer/message to be sent
 	const buffer = Buffer.alloc(16) // Allocates a new Buffer of size bytes. If fill is undefined, theBuffer will be zero-filled.
@@ -90,6 +91,7 @@ function buildConnReq() { // Creates the buffer/message to be sent
 	return buffer;
 }
 
+
 function parseConnResp(resp) { // function to parse the connection response message
 	
 	return {
@@ -98,6 +100,7 @@ function parseConnResp(resp) { // function to parse the connection response mess
 		connectionId: resp.slice(8) // slice to get the last 8 bytes.
 	}
 }
+
 
 function buildAnnounceReq(connId, torrent, port=6881) { // function to build the announce request message buffer
 							// message is built by the example found in BEP.
@@ -150,8 +153,6 @@ function buildAnnounceReq(connId, torrent, port=6881) { // function to build the
 	return buffer;
 	
 }
-
-
 
 
 function parseAnnounceResp(response) {
