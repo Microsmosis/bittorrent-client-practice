@@ -18,12 +18,12 @@ module.exports.size = (torrent) => {
 	torrent.info.files.map(file => file.length).reduce((a, b) => a + b) :
     torrent.info.length;
 	
-	return bufferToBigInt(toBuffer(size, {size : 8})); // instead of 'bignum' library we are using BigInt and it might not work.
+	
+	const test = Buffer.alloc(8);
+	const bignumb = BigInt(size)
+	test.writeBigInt64BE(bignumb, 0);
+	
+	return test; // instead of 'bignum' library we are using BigInt and it might not work.
 											// remember to be aware of this is problems occur and start debugging from this 
 										  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
-
-function bufferToBigInt(buffer, start = 0, end = buffer.length) {
-	const bufferAsHexString = buffer.slice(start, end).toString("hex");
-	return BigInt(`0x${bufferAsHexString}`);
-};
