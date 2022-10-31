@@ -39,3 +39,17 @@ socket.on('message', msg => {
 });
 
 console.log(url);// the buffer is then converted into string format with utf-8 encoding scheme.
+
+
+
+// HANDSHAKE MESSAGE EXAMPLE !! 
+// {
+//	handshake: <pstrlen><pstr><reserved><info_hash><peer_id></peer_id>
+//
+//	pstrlen: string length of <pstr>, as a single raw byte
+//	pstr: string identifier of the protocol
+//	reserved: eight (8) reserved bytes. All current implementations use all zeroes.
+//	peer_id: 20-byte string used as a unique ID for the client.
+//
+//	In version 1.0 of the BitTorrent protocol, pstrlen = 19, and pstr = "BitTorrent protocol".
+// }
